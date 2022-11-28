@@ -1,0 +1,54 @@
+# Setting up your PowerShell environment
+
+# Start a new PowerShell session via the default Windows shell (command prompt)
+PowerShell
+
+# This will launch an instance of PowerShell
+
+# From there, install the relevant AWS tools
+Install-Module -Name AWS.Tools.Installer
+
+# If there are any issues with this, you'll need to set your PowerShell execution policy
+# Use either 'RemoteSigned' or 'Unrestricted'
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
+Get-ExecutionPolicy -List
+
+# Now attempt to install AWS.Tools.Installer
+
+# You'll be prompted to install or update your NuGet provider
+Y
+
+# AWS might be flagged as an untrusted repository, hit 'yes'
+Y
+
+# Check that the AWS.Tools.Installer is available...
+Get-Module AWS.Tools.Installer -ListAvailable
+
+# ...then install the AWS.Tools.GameLift module
+Install-AWSToolsModule -Name AWS.Tools.GameLift
+
+# If 'Install.AWSToolsModule' throws any errors, use the default PowerShell module installation cmdlet
+Install-Module -Name AWS.Tools.IdentityManagement
+Install-Module -Name AWS.Tools.GameLift
+Install-Module -Name AWS.Tools.S3
+
+# During development, if your PowerShell IntelliSense has stopped working you'll need to restart your PowerShell session
+# Hit 'F1', you'll then have a choice of:
+# (1) Debug: restart
+# (2) PowerShell: Restart Current Session
+
+# For testing, run the following within a PowerShell environment to remove the default installation of Pester
+$module = "C:\Program Files\WindowsPowerShell\Modules\Pester"
+takeown /F $module /A /R
+icacls $module /reset
+icacls $module /grant "*S-1-5-32-544:F" /inheritance:d /T
+Remove-Item -Path $module -Recurse -Force -Confirm:$false
+
+# ...then install the latest ver.
+Install-Module -Name Pester -Force
+
+# For any subsequent updates
+Update-Module -Name Pester
+
+# Now that your PowerShell environment is fully configured, run the following
+./deploy.bat 2021.3.11f1 Linux
